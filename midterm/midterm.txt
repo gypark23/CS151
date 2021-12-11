@@ -1,0 +1,165 @@
+1.
+
+a) -5
+b) #f
+c) 0
+d) "grapes"
+e) 37
+
+
+2.
+
+a)
+
+(define-type Pitch (U 'A 'B 'C 'D 'E 'F 'G 'silence))  ;;I have included silence in pitch, this simplifies the code
+
+(define-struct Note ;;each note includes pitch (or could be silence) and duration
+  ([pitch : Pitch]
+   [duration : Real]))
+
+(define-type Melody (Listof Note))
+
+
+b)
+
+(: my-song : Melody)
+(define my-song (list (Note 'C 1) (Note 'E 1) (Note 'G 1) (Note 'silence 1)))
+
+
+c)
+
+(: melody-length : Melody -> Real)
+;; calculates the total length of a given melody
+;; returns a real value of the sum of duration of each notes
+(define (melody-length mel)
+  (cond
+    [(empty? mel) 0]
+    [else (+ (Note-duration (first mel)) (melody-length (rest mel)))]))
+
+
+3. 
+
+a)
+
+(: move-once : Arrow Point -> Point)
+;; moves a given point by 1 to a given direction
+(define (move-once arrow point)
+  (match arrow
+    ['up (Point (Point-x point) (+ (Point-y point) 1))]
+    ['down (Point (Point-x point) (- (Point-y point) 1))]
+    ['left (Point (- (Point-x point) 1) (Point-y point))]
+    ['right (Point (+ (Point-x point) 1) (Point-y point))]))
+
+
+b)
+
+(: move : (Listof Arrow) -> Point)
+;; moves a (0, 0) point to given directions
+;; from a given list of arrows 
+(define (move arrows)
+  (foldl move-once (Point 0 0) arrows))   
+
+
+4.
+
+a) 
+
+(: negatives : Int-Set)
+;; returns true if a given integer is negative
+;; returns false otherwise
+(define (negatives n)
+    (< n 0))
+    
+(: less-than-100 : Int-Set)
+;; returns true if the number is between -100 and 100, inclusive
+;; returns false otherwise
+(define (less-than-100 n)
+  (and (>= n -100) (<= n 100)))
+
+
+b)
+
+(: complement : Int-Set -> Int-Set)
+;; returns a complementary int set for a given int set 
+(define (complement n)
+  (local
+  {(: comp-set : Int-Set)
+   (define (comp-set a)
+     (cond
+       [(n a) #f]
+       [else #t]))}              
+  comp-set))
+
+
+c)
+
+(: find-int : Int-Set -> Integer)
+;; finds the first integer that is included in the given int-set
+;; if the integer is not in the int-set the recursion loop continues infinitely
+(define (find-int n)
+  (local
+    {(: next-integer : Integer -> Integer)
+     (define (next-integer num)
+       (cond
+         [(= num 0) 1]
+         [(> num 0) (* -1 num)]
+         [else (+ 1 (* -1 num))]))
+     (: find-integer : Integer -> Integer)
+     (define (find-integer num)
+       (if (n num)
+           num
+           (find-integer (next-integer num))))}
+    (find-integer 0)))
+
+
+
+5. 
+
+a) (: length : (All (A) (Listof A) -> Integer)) 
+b) (: foldl : (All (A B) (A B -> B) B (Listof A) -> B))
+c) (: map : (All (A B) (A -> B) (Listof A) -> (Listof B)))
+
+
+6.
+
+(: function : Integer -> Integer)
+;; a recursive function of f(n) = f(n-1) + 2f(n-2)
+;; takes a natural number n
+;; and outputs the value of f(n)
+;; the input must be a natural number otherwise will produce error
+(define (function num)
+  (cond
+    [(= num 0) 0]
+    [(= num 1) 2]
+    [else (+ (function (- num 1)) (* 2 (function (- num 2))))])) 
+
+
+7.
+
+
+(: even? : Integer -> Boolean)
+;; checks if the given integer is even number
+;; returns true if it is even
+;; returns false if it is odd
+(define (even? num)
+  (= (modulo num 2) 0))
+
+
+(: even-list : (Listof Integer) -> Integer)
+;; filters out only even numbers
+;; from a given list of integer
+;; and count how many elements were even numbers
+;; returns an integer value of how many even numbers were in a given integer list
+(define (even-list numlist)
+  (length (filter even? numlist)))
+
+
+8.
+
+(: my-foldl : (All (A B) (A B -> B) B (Listof A) -> B))
+;; folds the given list with a given function from the given initial value
+(define (my-foldl f initial list)
+  (cond
+    [(empty? list) initial]
+    [else (my-foldl f (f (first list) initial) (rest list))]))
+

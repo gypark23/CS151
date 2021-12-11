@@ -1,0 +1,169 @@
+#lang typed/racket
+(require "../include/cs151-core.rkt")
+(require typed/test-engine/racket-tests)
+(require "../include/cs151-image.rkt")
+
+;; Homework 5
+;;
+;; Kyu Park
+;; 12198215
+
+;; Problem 2
+
+(define-type Pitch (U 'A 'B 'C 'D 'E 'F 'G 'silence))
+
+(define-struct Note
+  ([pitch : Pitch]
+   [duration : Real]))
+
+(define-type Melody (Listof Note))
+
+(: my-song : Melody)
+(define my-song (list (Note 'C 1) (Note 'E 1) (Note 'G 1) (Note 'silence 1)))
+
+(: melody-length : Melody -> Real)
+(define (melody-length mel)
+  (cond
+    [(empty? mel) 0]
+    [else (+ (Note-duration (first mel)) (melody-length (rest mel)))]))
+    
+
+
+;; Problem 3
+
+
+(define-type Arrow (U 'up 'down 'left 'right))
+(define-struct Point([x : Real][y : Real]))
+
+
+(: move-once : Arrow Point -> Point)
+;; moves a given point by 1 to a given direction
+(define (move-once arrow point)
+  (match arrow
+    ['up (Point (Point-x point) (+ (Point-y point) 1))]
+    ['down (Point (Point-x point) (- (Point-y point) 1))]
+    ['left (Point (- (Point-x point) 1) (Point-y point))]
+    ['right (Point (+ (Point-x point) 1) (Point-y point))]))
+
+
+(: move : (Listof Arrow) -> Point)
+;; moves a (0, 0) point to given directions
+;; from a given list of arrows 
+(define (move arrows)
+  (foldl move-once (Point 0 0) arrows))
+
+
+;; Problem 4
+
+(define-type Int-Set (Integer -> Boolean))
+
+(: negatives : Int-Set)
+;; returns true if a given integer is negative
+;; returns false otherwise
+(define (negatives n)
+  (< n 0))
+    
+
+(: less-than-100 : Int-Set)
+;; returns true if the number is between -100 and 100, inclusive
+;; returns false otherwise
+(define (less-than-100 n)
+  (and (>= n -100) (<= n 100)))
+
+(: complement : Int-Set -> Int-Set)
+;; returns a complementary int set for a given int set 
+(define (complement n)
+  (local
+  {(: comp-set : Int-Set)
+   (define (comp-set a)
+     (cond
+       [(n a) #f]
+       [else #t]))}              
+  comp-set))
+
+(: find-int : Int-Set -> Integer)
+;; finds the first integer that is included in the given int-set
+;; if the integer is not in the int-set the recursion loop continues infinitely
+(define (find-int n)
+  (local
+    {(: next-integer : Integer -> Integer)
+     (define (next-integer num)
+       (cond
+         [(= num 0) 1]
+         [(> num 0) (* -1 num)]
+         [else (+ 1 (* -1 num))]))
+     (: find-integer : Integer -> Integer)
+     (define (find-integer num)
+       (if (n num)
+           num
+           (find-integer (next-integer num))))}
+    (find-integer 0)))
+    
+(: no : Int-Set)
+(define (no n)
+  false)
+        
+
+
+;; Problem 5
+
+;; (: length : (All (A) (Listof A) -> Integer))
+
+;; (: foldl : (All (A B) (A B -> B) B (Listof A) -> B))
+
+;; (: map : (All (A B) (A -> B) (Listof A) -> (Listof B)))
+
+
+;; Problem 6
+
+(: function : Integer -> Integer)
+;; a recursive function of f(n) = f(n-1) + 2f(n-2)
+;; takes a natural number n
+;; and outputs the value of f(n)
+;; the input must be a natural number otherwise will produce error
+(define (function num)
+  (cond
+    [(= num 0) 0]
+    [(= num 1) 2]
+    [else (+ (function (- num 1)) (* 2 (function (- num 2))))]))
+
+
+
+;; Problem 7
+
+(: even? : Integer -> Boolean)
+;; checks if the given integer is even number
+;; returns true if it is even
+;; returns false if it is odd
+(define (even? num)
+  (= (modulo num 2) 0))
+
+
+(: even-list : (Listof Integer) -> Integer)
+;; filters out only even numbers
+;; from a given list of integer
+;; and count how many elements were even numbers
+;; returns an integer value of how many even numbers were in a given integer list
+(define (even-list numlist)
+  (length (filter even? numlist)))
+
+
+;; Problem 8
+
+(: my-foldl : (All (A B) (A B -> B) B (Listof A) -> B))
+;; folds the given list with a given function from the given initial value
+(define (my-foldl f initial list)
+  (cond
+    [(empty? list) initial]
+    [else (my-foldl f (f (first list) initial) (rest list))]))
+
+
+;; Problem 9
+
+
+  
+      
+  
+
+
+  

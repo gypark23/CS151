@@ -1,0 +1,106 @@
+#lang typed/racket
+(require "../include/cs151-core.rkt")
+(require typed/test-engine/racket-tests)
+
+
+
+;;problem 1
+;;a
+(sqrt (- 151 (* 7 20)))
+;;b
+(/ (* G m M) (* R R))
+;;c
+(if (>= (- (* b b) (* 4 a c)) 0)
+       2
+       0)
+
+
+
+;;problem 2
+;;a
+(: average-3 : Real Real Real -> Real)
+;;b
+(: even-numerator : Exact-Rational -> Boolean)
+;;c
+(: chicago-string : String String -> String)
+
+
+
+
+
+;;problem 3
+(:  c->f :  Exact-Rational -> Exact-Rational)
+;;converts temperature from celcius to fahrenheit
+;;for the given exact-reational value of celcius temperature
+(define (c->f temperature)
+  (+ 32 (/ (* temperature 9) 5)))
+
+(check-within (c->f 100/3) 92 0.0001)
+(check-within (c->f 0) 32 0.0001)
+
+
+(: f->c : Exact-Rational -> Exact-Rational)
+;;converts temeprature from fahrenheit to celcius
+;;for the given exact-rational value of fahrenheit temperature
+(define (f->c temperature)
+  (* (/ (- temperature 32) 9) 5))
+
+(check-within (f->c 92) 33.3333 0.0001)
+(check-within (f->c 100) 37.7778 0.0001)
+
+
+
+;;problem 4
+;;checks if the input is a valid percentage value
+;;returns false if the input is within 0 to 100
+;;returns true if the input is less than 0 or greater than 100
+(: not-a-percentage? : Real -> Boolean)
+(define (not-a-percentage? input)
+  (or (> input 100) (< input 0)))
+
+(check-expect (not-a-percentage? 63.57) false)
+(check-expect (not-a-percentage? 100) false)
+(check-expect (not-a-percentage? 100.1) true)
+
+
+
+;;problem 5
+;;checks if the bank account balance is greater or equal to 50
+;;after the dress cost including taxes is subtracted
+;;returns true if the bank account balance is greater or equal to 50
+;;returns false if the bank account balance is less than 50
+(: enough-money? : Exact-Rational Exact-Rational Exact-Rational -> Boolean)
+(define (enough-money? bankacc dresscost taxrate)
+  (>= (- bankacc (* dresscost (+ taxrate 1))) 50))
+
+(check-expect (enough-money? 100 10 10/100) true)
+(check-expect (enough-money? 60 5 100/100) true)
+(check-expect (enough-money? 55 10 20/100) false)
+
+
+
+;;problem 6
+;;calculates how many lemons strictly necessary
+;;for given integer value of the number of adults and children
+;;rounds up to the nearest integer value of the number of lemons
+(: lemons : Integer Integer -> Integer)
+(define (lemons numadults numchildren)
+  (exact-ceiling (+ (* numadults 1/3) (* numchildren 1/4))))
+
+(check-expect (lemons 10 10) 6)
+(check-expect (lemons 3 6) 3)
+
+;;calculates how many lemonst strictly necessary
+;;for given integer value of number of adults and children
+;;and given rational value of the temperature
+;;rounds up to the nearest integer value of the number of lemons
+(: more-lemons : Integer Integer Exact-Rational -> Integer)
+(define (more-lemons numadults numchildren temperature)
+  (if (< temperature 85)
+     (exact-ceiling (+ (* numadults 1/3) (* numchildren 1/4)))
+     (exact-ceiling (+ (* numadults 1/2) (* numchildren 1/3)))))
+
+(check-expect (more-lemons 10 10 80) 6)
+(check-expect (more-lemons 10 10 85) 9) 
+(check-expect (more-lemons 10 10 90) 9)
+

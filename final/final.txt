@@ -1,0 +1,233 @@
+1.
+
+a) A function that takes in functions as an argument
+b) A function that doesn't have a fixed type of argument; the one that takes various types in as argument
+c) The two functions are mutually recursive if the first calls the second and the second calls the first recursively (mutual recursion)
+d) Number of edges that a vertex has
+e) 
+
+(: tree : (BST Integer))
+(define tree (BST <= (Node 50 (Node -5 'none (Node 46 'none 'none)) (Node 81 (Node 66 'none 'none) 'none))))
+
+f) It is the rule of a BST that the left child should have a smaller value than the root node while the right child should have a greater value than the root node
+
+
+
+2. 
+
+a) 
+
+(: third-moment : (Listof Real) -> Real)
+(define (third-moment numbers)
+  (if (empty? numbers)
+      (error "length 0")
+      (/ (foldr (lambda ([num : Real] [acc : Real]) (+ (expt num 3) acc)) 0 numbers) (length numbers))))
+
+b)
+
+(: power-set : (Listof Integer) -> (Listof (Listof Integer)))
+(define (power-set numbers)
+  (cond
+    [(empty? numbers) (list empty)]
+    [else (append (map (lambda ([temp : (Listof Integer)]) (cons (first numbers) temp)) (power-set (rest numbers))) (power-set (rest numbers)))]))
+
+
+3.
+
+
+a)
+
+ (: country->hemisphere : String -> Hemisphere)
+(define (country->hemisphere country)
+  (match country
+    ["United States" (Hemisphere 'west 'north)]
+    ["China" (Hemisphere 'east 'north)]
+    ["South Africa" (Hemisphere 'west 'south)]
+    ["Japan" (Hemisphere 'east 'north)]))
+
+
+b)
+
+
+(: same-hemisphere? : String String -> Boolean)
+(define (same-hemisphere? a b)
+  (match (country->hemisphere a)
+    [(Hemisphere a-long a-lat) (match (country->hemisphere b)
+                                 [(Hemisphere b-long b-lat) (if (and (symbol=? a-long b-long) (symbol=? a-lat b-lat)) true false)])]))
+
+
+4.
+
+a) Phil-days-alive and Phil-past-life
+
+b)
+
+
+(: rebirth : Phil -> Phil)
+(define (rebirth phil)
+  (Phil 0 phil))
+
+
+c)
+
+(: total-days-alive : Phil -> Integer)
+(define (total-days-alive phil)
+  (match (Phil-past-life phil)
+    ['none (Phil-days-alive phil)]
+    [(Phil _ _) (+ (Phil-days-alive phil) (total-days-alive (Phil-past-life phil)))]))
+
+
+5.
+
+a)
+
+(: complementary-bases? : Base Base -> Boolean)
+(define (complementary-bases? a b)
+  (match a
+    ['A (if (symbol=? b 'T) true false)]
+    ['T (if (symbol=? b 'A) true false)]
+    ['C (if (symbol=? b 'G) true false)]
+    ['G (if (symbol=? b 'C) true false)]))
+
+b) 
+
+(: complementary? : DNA DNA -> Boolean)
+(define (complementary? a b)
+  (local
+    {(: complementary-helper : Integer -> Boolean)
+     (define (complementary-helper index)
+       (cond
+         [(= index (vector-length a)) true]
+         [else (if (complementary-bases? (vector-ref a index) (vector-ref b index)) (complementary-helper (+ 1 index)) false)]))}
+    (complementary-helper 0)))
+
+
+c)
+
+(: cross-over! : DNA DNA Integer Integer -> Void)
+(define (cross-over! a b one two)
+  (local
+    {(: swap : Integer -> Void)
+     (define (swap index)
+       (local
+         {(: temp : Base)
+          (define temp (vector-ref a index))}
+         (begin (vector-set! a index (vector-ref b index)) (vector-set! b index temp))))}
+    (cond
+      [(= one two) (swap one)]
+      [else (begin (swap one) (cross-over! a b (+ 1 one) two))])))
+
+
+
+6. 
+
+
+(: map : (All (A B) (A -> B) (Listof A) -> (Listof B)))
+(define (map f my-list)
+  (cond
+    [(empty? my-list) empty]
+    [else (cons (f (first my-list)) (map f (rest my-list)))]))
+
+
+(: andmap : (All (A) (A -> Boolean) (Listof A) -> Boolean))
+(define (andmap f? my-list)
+  (cond
+    [(empty? my-list) true]
+    [else (and (f? (first my-list)) (andmap f? (rest my-list)))]))
+
+
+7.
+
+a)
+
+(: change-turn : Checkers -> Checkers)
+(define (change-turn game)
+  (match game
+    [(Checkers pieces turn clicked-piece) (Checkers pieces (if (symbol=? turn 'red) 'black 'red) clicked-piece)]))
+
+b)
+
+
+(: two-squares-away? : Checkers Loc -> Boolean)
+(define (two-squares-away? game loc)
+  (match game
+    [(Checkers _ _ (Piece _ location)) (and (or (= (- (Loc-row location) 2) (Loc-row loc)) (= (+ (Loc-row location) 2) (Loc-row loc)))
+                                      (or (= (- (Loc-col location) 2) (Loc-col loc)) (= (+ (Loc-col location) 2) (Loc-col loc))))]))
+
+
+8.
+
+a)
+
+(: cycle : Graph)
+(define cycle (Graph 5 (vector (list 1 4) (list 0 3) (list 3 4) (list 1 2) (list 0 2))))
+
+
+b)
+
+(: cycle? : Graph -> Boolean)
+(define (cycle? graph)
+  (and (connected? graph) (andmap (lambda ([ver : Vertex]) (= 2 (degree graph ver))) (all-vtxs graph))))
+
+
+c)  runtime
+
++1 and
+O(m+n) connected?
+
+andmap (repeats n times)
++ 1 =
++ O(m+n)
+
+O(nm+n^2) + O(n) + O(1)
+
+O(nm+n^2) is most dominant
+
+for a cycle, n=m
+
+O(2n^2), and therefore O(n^2)
+
+The runtime is O(n^2)
+
+
+
+12)
+
+(: count-tiles : Integer -> Integer)
+;; counts how many ways are there to cover a floor ofsize 2×n with tiles of size 2×2 and 1×2.
+;; n must be a nonnegative integer
+(define (count-tiles n)
+  (match n
+    [0 0]
+    [1 1]
+    [2 3]
+    [else (+ (count-tiles (- n 1)) (* 2 (count-tiles (- n 2))))]))
+
+
+
+13)
+
+a)
+
+(: anagrams? : Integer Integer -> Boolean)
+(define (anagrams? n m)
+  (local
+    {(: int->list : Integer -> (Listof Integer))
+    (define (int->list n)
+      (if (zero? n) empty (append (int->list (quotient n 10)) (list (remainder n 10)))))}
+    (equal? (sort (int->list n) <) (sort (int->list m) <))))
+
+
+
+b) 
+
+(: count-perfect : Integer -> Integer)
+(define (count-perfect n)
+  (local
+    {(: factors-of-n : Integer -> (Listof Integer))
+     (define (factors-of-n num)
+       (filter (lambda ([x : Integer]) (= 0 (modulo num x))) (build-list (- num 1) (lambda ([x : Integer]) (+ 1 x)))))
+     (: perfect? : Integer -> Boolean)
+     (define (perfect? num)
+       (and (> (length (factors-of-n num)) 1) (= (foldr + 0 (factors-of-n num)) num)))}
+    (length (filter perfect? (build-list n (lambda ([x : Integer]) (+ 1 x)))))))

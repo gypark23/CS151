@@ -1,0 +1,26 @@
+#lang typed/racket
+(require "../include/cs151-core.rkt")
+(require typed/test-engine/racket-tests)
+(require "../include/cs151-image.rkt")
+
+;; Homework 5
+;;
+;; Kyu Park
+;; 12198215
+
+;; Problem 2
+
+
+;; a)
+(: third-moment : (Listof Real) -> Real)
+(define (third-moment numbers)
+  (if (empty? numbers)
+      (error "length 0")
+      (/ (foldr (lambda ([num : Real] [acc : Real]) (+ (expt num 3) acc)) 0 numbers) (length numbers))))
+
+;; b)
+(: power-set : (Listof Integer) -> (Listof (Listof Integer)))
+(define (power-set numbers)
+  (cond
+    [(empty? numbers) empty]
+    [else (append (map (lambda ([temp : (Listof Integer)]) (cons (first numbers) temp)) (rest numbers)) (power-set (rest numbers)))]))
